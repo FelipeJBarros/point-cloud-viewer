@@ -33,11 +33,31 @@
 }
 
 #tools {
-  flex: 1;
+  flex: 0 0 250px;
   border-right: 2px solid var(--dark-grey-900);
 }
 
+#splited-screens {
+  position: relative;
+  flex: 1;
+}
+
+#screens {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+}
+
+#screens>div {
+  width: 100%;
+  height: 100%;
+}
+
 #canvas {
-  flex: 4;
-  background-color: royalblue;
+  display: block;
+  width: 100%;
+  height: 100%;
 }
