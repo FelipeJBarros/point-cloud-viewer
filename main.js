@@ -1,6 +1,13 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
+const CAMERA_DEFAULT_SETTINGS = {
+    fov: 75,
+    aspect: 2,
+    near: 0.1,
+    far: 1000
+}
+
 function createCube(dimension, color) {
     const geometry = new THREE.BoxGeometry(dimension, dimension, dimension);
     const material = new THREE.MeshBasicMaterial({ color: color });
@@ -45,7 +52,7 @@ function main() {
     const renderer = new THREE.WebGLRenderer({ antialias: true, canvas });
 
     const fov = 75,
-        aspect = canvas.clientWidth / canvas.clientHeight,
+        aspect = 2,
         near = 0.1,
         far = 1000;
 
@@ -70,8 +77,8 @@ function main() {
 
     const grid = new THREE.GridHelper(10);
     
-    scene.add(cube);
-    scene.add(grid);
+    const sceneElements = [cube, grid];
+    sceneElements.forEach(item => scene.add(item));
 
     renderer.setSize(canvas.clientWidth, canvas.clientHeight);
 
