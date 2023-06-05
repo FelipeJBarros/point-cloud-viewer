@@ -1,6 +1,8 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
+const observer = new MutationObserver(handleMutationObserver);
+
 const CAMERA_DEFAULT_SETTINGS = {
     fov: 75,
     aspect: 2,
@@ -44,31 +46,43 @@ function resizeRendererToDisplaySize(renderer) {
     return needResize;
 }
 
+function handleMutationObserver(mutations) {
+    views = [...Array.from(document.getElementsByClassName('view'))];
+    updateCameras();
+    mutations.forEach(function (mutation) {
+        console.log(mutation);
+    });
+}
+
+const fov = 75,
+    aspect = 2,
+    near = 0.1,
+    far = 1000;
+
+const cameras = [];
+const controls = [];
+let views = Array.from(document.getElementsByClassName('view'));
+
+function updateCameras() {
+    views.forEach(viewElm => {
+        const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+        console.log(viewElm)
+        camera.position.set(0, 2, 3);
+        camera.lookAt(0, 0, 0);
+
+        const control = new OrbitControls(camera, viewElm);
+        control.update();
+
+        cameras.push(camera);
+        controls.push(control);
+    });
+}
+
 function main() {
     const canvas = document.querySelector('#canvas');
-    const view1Elem = document.querySelector('#view1');
-    const view2Elem = document.querySelector('#view2');
-
     const renderer = new THREE.WebGLRenderer({ antialias: true, canvas });
 
-    const fov = 75,
-        aspect = 2,
-        near = 0.1,
-        far = 1000;
-
-    const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-    camera.position.set(0, 2, 3);
-    camera.lookAt(0, 0, 0)
-
-    const controls = new OrbitControls(camera, view1Elem);
-    controls.update();
-
-    const camera2 = new THREE.PerspectiveCamera(fov, aspect, near, far);
-    camera2.position.set(0, 2, -3);
-    camera2.lookAt(0, 0, 0);
-
-    const controls2 = new OrbitControls(camera2, view2Elem);
-    controls2.update();
+    updateCameras();
 
     const scene = new THREE.Scene();
 
@@ -76,7 +90,7 @@ function main() {
     cube.position.set(0, 0.5, 0);
 
     const grid = new THREE.GridHelper(10);
-    
+
     const sceneElements = [cube, grid];
     sceneElements.forEach(item => scene.add(item));
 
@@ -87,25 +101,17 @@ function main() {
 
         resizeRendererToDisplaySize(renderer);
 
-        renderer.setScissorTest(true)
+        renderer.setScissorTest(true);
 
-        {
-            const aspect = setScissorForElement(view1Elem, canvas, renderer);
+        views.forEach((viewElm, viewIndex) => {
+            const aspect = setScissorForElement(viewElm, canvas, renderer);
+            const currentCamera = cameras[viewIndex];
 
-            camera.aspect = aspect;
-            camera.updateProjectionMatrix();
+            currentCamera.aspect = aspect;
+            currentCamera.updateProjectionMatrix();
 
-            renderer.render(scene, camera);
-        }
-
-        {
-            const aspect = setScissorForElement(view2Elem, canvas, renderer);
-
-            camera2.aspect = aspect;
-            camera2.updateProjectionMatrix();
-
-            renderer.render(scene, camera2);
-        }
+            renderer.render(scene, currentCamera);
+        })
 
         cube.rotation.y = time;
         requestAnimationFrame(render);
@@ -114,3 +120,9 @@ function main() {
 }
 
 main();
+
+window.addEventListener('load', () => {
+    const target = document.querySelector("#screens");
+    observer.observe(target, { childList: true });
+});
+window.addEventListener('unload', () => observer.disconnect());
