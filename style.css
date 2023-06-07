@@ -48,12 +48,13 @@
   left: 0;
   width: 100%;
   height: 100%;
+
   display: flex;
+  flex-wrap: wrap;
 }
 
 #screens>div {
-  width: 100%;
-  height: 100%;
+  flex: 1 0 50%;
 }
 
 #canvas {
